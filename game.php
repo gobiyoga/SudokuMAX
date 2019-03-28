@@ -1,3 +1,19 @@
+<?php
+session_start();
+
+require 'includes/db.php';
+require 'includes/def.php';
+
+$theHTML = "";
+$successMsg = "";
+
+if ( isset( $_SESSION['user_id'] ) ) {
+} else {
+    header("Location: http://sofe2720.veloxcloud.ca/login.php");
+}
+?>
+
+
 
 
 <!DOCTYPE html>
@@ -11,7 +27,19 @@
   <link rel="stylesheet" href="gamestyle.css">
 
 </head>
+<script type="text/javascript">
+    function theme(cssFile, cssLinkIndex) {
 
+    var oldlink = document.getElementsByTagName("link").item(cssLinkIndex);
+
+    var newlink = document.createElement("link");
+    newlink.setAttribute("rel", "stylesheet");
+    newlink.setAttribute("type", "text/css");
+    newlink.setAttribute("href", cssFile);
+
+    document.getElementsByTagName("head").item(0).replaceChild(newlink, oldlink);
+}
+</script>
 <body>
 <center><h1>SudokuMAX</h1><br>
 
@@ -520,6 +548,12 @@
                             </tr>
                         </table>
                     </div>
+                     <a href="#" onclick="theme('gamestyle.css', 0);"> Dark Theme   </a> 
+                     <a href="#" onclick="theme('alternategamestyle.css', 0);">Light Theme</a>
+                </center>
+            </body>
+            </html>
+
 
 
 

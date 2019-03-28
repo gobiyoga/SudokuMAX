@@ -10,9 +10,9 @@ body
 {
     margin: 0px;
     padding: 0px;
-    background: #000000;
+    background: white;
     font-family: Arial;
-    color: #834eb2;
+    color: blue;
     font-size: 12px;
 }
 
@@ -25,14 +25,14 @@ body,table,tr,td,div
 
 b
 {
-    color: #834eb2;
+    color: white;
     font-weight: bold;
 }
 
 
 a
 {
-    color: #834eb2;
+    color: white;
     text-decoration: none;
 }
 
@@ -47,6 +47,11 @@ a:hover
     float: left;
 }
 
+#Column1
+{
+    width: 300px;
+    float: left;
+}
 
 #sudokuBoard
 {
@@ -60,7 +65,7 @@ a:hover
 
 td.cell1,td.cell
 {
-    background-color: #000000;
+    background-color: white;
 }
 
 td.cell1 td.cell
@@ -68,7 +73,7 @@ td.cell1 td.cell
     width: 44px;
     height: 44px;
     border: 1px solid #834eb2;
-    background-color: #000000;
+    background-color: white;
 }
 
 td.cell2 td.cell
@@ -76,7 +81,7 @@ td.cell2 td.cell
     width: 44px;
     height: 44px;
     border: 1px solid #834eb2;
-    background-color: #000000;
+    background-color: white;
 }
 
 .staticValue
@@ -128,7 +133,7 @@ select
 
 
 
-.addValue input
+.editValue input
 {
     font-family: Arial;
     font-size: 30px;
@@ -143,6 +148,3 @@ select
     position: relative;
     left: -1px;
 }
-
-
-

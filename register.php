@@ -1,36 +1,45 @@
+
 <?php
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
     require 'includes/db.php';
-
-    require 'includes/captcha.php';
 
     $replymsg = '<div class="alert alert-danger" role="alert"><strong>Error!</strong> Undefined error!</div>';
 
     $username = $_POST['inputUsername'];
+    $email = $_POST['inputEmail'];
     $password = $_POST['inputPassword'];
+    $cPassword = $_POST['inputCPassword'];
 
-    $sql = "SELECT * FROM users WHERE username = '$username'";
-    $result = mysqli_query($connection, $sql);
-    $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
+    $sql = "SELECT id FROM users WHERE username = '$username'";
+    $result = mysqli_query($connection,$sql);
 
     if ($captcha_success->success==false) {
         $replymsg = '<div class="alert alert-danger" role="alert"><strong>Error!</strong> Invalid captcha!</div>';
     }
-    else if((mysqli_num_rows($result) == 1) && ($captcha_success->success==true) && password_verify($password, $row['password'])) {
-        $_SESSION['user_id'] = $username;
-        if (isset($_GET["movie"])) {
-            header("Location: http://sofe2720.veloxcloud.ca/order.php?id=".$_GET["movie"]);
+    else if(mysqli_num_rows($result) >= 1) {
+        $replymsg = '<div class="alert alert-danger" role="alert"><strong>Error!</strong> Username already exists!</div>';
+    }
+    else if($password != $cPassword) {
+        $replymsg = '<div class="alert alert-danger" role="alert"><strong>Error!</strong> Both passwords do not match!</div>';
+    }
+    else if ($captcha_success->success==true) {
+        $sql = "INSERT INTO users (username,password,email,created) VALUES ('{$connection->real_escape_string($username)}',
+        '{$connection->real_escape_string(password_hash($password, PASSWORD_DEFAULT))}',
+        '{$connection->real_escape_string($email)}',
+        '{$connection->real_escape_string(date("Y-m-d H:i:s"))}' )";
+        $insert = $connection->query($sql);
+
+        if ($insert == TRUE) {
+            $_SESSION['user_id'] = $username;
+            $replymsg = '<div class="alert alert-success" role="alert"><strong>Success!</strong> <a href="dashboard.php">Click here</a> to view the dashboard!</div>';
         }
         else {
-            header("Location: http://sofe2720.veloxcloud.ca/dashboard.php");
+            die("Error: {$connection->errno} : {$connection->error}");
         }
     }
-    else {
-        $replymsg = '<div class="alert alert-danger" role="alert"><strong>Error!</strong> Invalid username and/or password!</div>';
-    }
+$connection->close();
 }
 ?>
 
@@ -44,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SudokuMAX - Login</title>
+    <title>SudokuMAX - Register</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -72,12 +81,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <span class="sr-only">(current)</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="register.php">Register</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="login.php">Login</a>
-                </li>
+                <?php
+                if ( isset( $_SESSION['user_id'] ) ) {
+                    echo '
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                    ';
+                }
+                else {
+                    echo '
+                    <li class="nav-item">
+                        <a class="nav-link active" href="register.php">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.php">Login</a>
+                    </li>
+                    ';
+                }
+                ?>
             </ul>
         </div>
     </div>
@@ -88,27 +113,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
             <div class="card-signin my-5">
                 <div class="card-body">
-                    <h5 class="card-title text-center">Sign In</h5>
+                    <h5 class="card-title text-center">Register</h5>
                     <?php
                     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         echo $replymsg;
                     }
                     ?>
-                    <form class="form-signin" action="" method="post">
+                    <form class="form-signin" action=<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?> method="post">
                         <div class="form-label-group">
                             <input type="text" name="inputUsername" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
                             <label for="inputUsername">Username</label>
                         </div>
 
                         <div class="form-label-group">
+                            <input type="email" name="inputEmail" id="inputEmail" class="form-control" placeholder="Email address" required>
+                            <label for="inputEmail">Email address</label>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-label-group">
                             <input type="password" name="inputPassword" id="inputPassword" class="form-control" placeholder="Password" required>
                             <label for="inputPassword">Password</label>
                         </div>
 
+                        <div class="form-label-group">
+                            <input type="password" name="inputCPassword" id="inputCPassword" class="form-control" placeholder="Password" required>
+                            <label for="inputConfirmPassword">Confirm password</label>
+                        </div>
+
                         <div align="center" class="g-recaptcha" data-sitekey="6LeuVH0UAAAAAOvb2yHd9wlV743BZ5V1b3FQOmPl"></div><br>
 
-                        <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign in</button>
-                        <a class="d-block text-center mt-2 small" href="register.php">Register</a>
+                        <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Register</button>
+                        <a class="d-block text-center mt-2 small" href="login.php">Sign In</a>
                     </form>
                 </div>
             </div>
@@ -119,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!-- Footer -->
 <footer class="bg-dark footer">
     <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; SudokuMAX 2018</p>
+        <p class="m-0 text-center text-white">Copyright &copy; SudokuMAX 2019</p>
     </div>
     <!-- /.container -->
 </footer>
